@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veeva - Recipe Discovery Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #fff7ed, #fed7aa);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            margin-right: 0.75rem;
+            color: #f97316;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .ingredient-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .ingredient-input:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+
+        .add-btn {
+            padding: 0.75rem 1.5rem;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #ea580c;
+        }
+
+        .ingredients-list {
+            margin-bottom: 1rem;
+        }
+
+        .ingredients-list h3 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .ingredient-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .ingredient-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+
+        .remove-ingredient {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .remove-ingredient:hover {
+            color: #166534;
+        }
+
+        .filter-section {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
+        }
+
+        .filter-section label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .results-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1.5rem;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .recipe-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .recipe-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .recipe-card.can-make {
+            border: 2px solid #16a34a;
+            background: #f0fdf4;
+        }
+
+        .recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .recipe-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .match-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .match-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .match-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .match-low {
+            background: #fed7aa;
+            color: #c2410c;
+        }
+
+        .recipe-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .recipe-status {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-can-make {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-missing {
+            background: #fed7aa;
+            color: #c2410c;
+        }
+
+        .recipe-detail {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .recipe-detail-header {
+            padding: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .back-btn {
+            color: #f97316;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            color: #ea580c;
+        }
+
+        .recipe-detail-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .recipe-detail-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .recipe-detail-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .ingredients-section h3,
+        .instructions-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .ingredient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .ingredient-have {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .ingredient-required {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .ingredient-optional {
+            background: #fefbf3;
+            color: #d97706;
+        }
+
+        .instruction-list {
+            list-style: none;
+        }
+
+        .instruction-item {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .instruction-number {
+            background: #f97316;
+            color: white;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        .cart-btn {
+            width: 100%;
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .cart-btn:hover {
+            background: #ea580c;
+        }
+
+        .starter-suggestions {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6b7280;
+        }
+
+        .starter-suggestions h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .starter-suggestions p {
+            margin-bottom: 1.5rem;
+        }
+
+        .suggestion-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .suggestion-btn {
+            padding: 0.5rem 1rem;
+            background: #fed7aa;
+            color: #c2410c;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-btn:hover {
+            background: #fdba74;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>veeva</h1>
+        <p>Recipe Discovery Platform<br><small style="opacity: 0.8;">Powered by Veeva Vault</small></p>
+    </div>
+
+    <div class="container">
+        <div id="searchView">
+            <div class="search-section">
+                <h2 class="search-title">
+                    <span class="search-icon">🔍</span>
+                    What can I make with...
+                </h2>
+                
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="ingredientInput" 
+                        class="ingredient-input"
+                        placeholder="Enter an ingredient (e.g., chicken, pasta, garlic)"
+                    >
+                    <button onclick="window.addIngredient()" class="add-btn">+ Add</button>
+                </div>
+
+                <div id="ingredientsList" class="ingredients-list hidden">
+                    <h3>Your Ingredients:</h3>
+                    <div id="ingredientTags" class="ingredient-tags"></div>
+                </div>
+
+                <div class="filter-section">
+                    <label for="maxMissing">Show recipes missing up to:</label>
+                    <select id="maxMissing" class="filter-select" onchange="window.updateResults()">
+                        <option value="0">0 ingredients (exact matches only)</option>
+                        <option value="1">1 ingredient</option>
+                        <option value="2" selected>2 ingredients</option>
+                        <option value="3">3 ingredients</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="resultsSection" class="hidden">
+                <h2 id="resultsTitle">Found recipes</h2>
+                <div id="recipeGrid" class="recipe-grid"></div>
+            </div>
+
+            <div id="starterSuggestions" class="starter-suggestions">
+                <h3>Start by adding ingredients you have available</h3>
+                <p>Try common ingredients from our Veeva recipe database:</p>
+                <div class="suggestion-buttons">
+                    <button class="suggestion-btn" onclick="window.addSuggestedIngredient('chicken')">+ chicken</button>
+                    <button class="suggestion-btn" onclick="window.addSuggestedIngredient('pasta')">+ pasta</button>
+                    <button class="suggestion-btn" onclick="window.addSuggestedIngredient('garlic')">+ garlic</button>
+                    <button class="suggestion-btn" onclick="window.addSuggestedIngredient('butter')">+ butter</button>
+                    <button class="suggestion-btn" onclick="window.addSuggestedIngredient('onion')">+ onion</button>
+                </div>
+            </div>
+
+            <div id="noResults" class="starter-suggestions hidden">
+                <h3>No recipes found with your current ingredients</h3>
+                <p>Try adding more ingredients or increasing the missing ingredients limit</p>
+            </div>
+        </div>
+
+        <div id="recipeDetailView" class="recipe-detail hidden">
+            <div class="recipe-detail-header">
+                <a href="#" onclick="window.showSearchView()" class="back-btn">← Back to results</a>
+                <div class="recipe-header">
+                    <div>
+                        <h1 id="detailTitle" class="recipe-detail-title"></h1>
+                        <p id="detailDescription" class="recipe-description"></p>
+                    </div>
+                    <div id="detailMatchBadge" class="match-badge"></div>
+                </div>
+                <div id="detailMeta" class="recipe-meta"></div>
+            </div>
+
+            <div class="recipe-detail-content">
+                <div class="ingredients-section">
+                    <h3>Ingredients</h3>
+                    <div id="detailIngredients"></div>
+                    <button class="cart-btn">🛒 Add Missing to Cart (Link to Veeva)</button>
+                </div>
+
+                <div class="instructions-section">
+                    <h3>Instructions</h3>
+                    <ol id="detailInstructions" class="instruction-list"></ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global app state
+        window.availableIngredients = [];
+        window.searchResults = [];
+        window.selectedRecipe = null;
+        window.maxMissing = 2;
+        window.veevaRecipes = [];
+
+        // Veeva Recipe Data
+        async function loadVeevaData() {
+            const sampleVeevaData = [
+                {
+                    recipeId: "V8A000000003021",
+                    title: "Baked Ziti",
+                    description: "A tasty dish called Baked Ziti.",
+                    prepTime: 10,
+                    cookTime: 22,
+                    totalTime: 32,
+                    servings: 4,
+                    difficultyLevel: "Kitchen Newbie",
+                    cuisineType: "🍜 Ramen-tic - Asian",
+                    successSecrets: "Customize your Baked Ziti with toppings or spices.",
+                    ingredients: [
+                        { name: "olive oil", quantity: 2, unit: "", prep_notes: "drizzled", required: true },
+                        { name: "parmesan", quantity: 3, unit: "", prep_notes: "grated", required: true },
+                        { name: "pasta", quantity: 3, unit: "", prep_notes: "boiled", required: true },
+                        { name: "tomato sauce", quantity: 4, unit: "", prep_notes: "grilled", required: true }
+                    ],
+                    instructions: [
+                        { name: "Baked Ziti - Step 1", text: "In a skillet, sauté garlic and onions in olive oil until fragrant.", equipment: "Large pot, baking dish, skillet, oven mitts", step_number: 1 },
+                        { name: "Baked Ziti - Step 2", text: "Add marinara sauce and simmer for 10 minutes.", equipment: "Large pot, baking dish, skillet, oven mitts", step_number: 2 },
+                        { name: "Baked Ziti - Step 3", text: "Mix pasta with sauce and place in a baking dish. Top with cheese.", equipment: "Large pot, baking dish, skillet, oven mitts", step_number: 3 },
+                        { name: "Baked Ziti - Step 4", text: "Bake at 375°F for 20-25 minutes until bubbly and golden.", equipment: "Large pot, baking dish, skillet, oven mitts", step_number: 4 }
+                    ]
+                },
+                {
+                    recipeId: "V8A000000002001",
+                    title: "Butter Chicken",
+                    description: "Rich and creamy Indian curry with tender chicken",
+                    prepTime: 20,
+                    cookTime: 30,
+                    totalTime: 50,
+                    servings: 6,
+                    difficultyLevel: "Kitchen Pro",
+                    cuisineType: "🌶️ Spice Route - Indian",
+                    successSecrets: "Marinate the chicken for best flavor and use heavy cream for richness.",
+                    ingredients: [
+                        { name: "chicken", quantity: 2, unit: "lbs", prep_notes: "cubed", required: true },
+                        { name: "butter", quantity: 4, unit: "tbsp", prep_notes: "", required: true },
+                        { name: "onion", quantity: 1, unit: "large", prep_notes: "diced", required: true },
+                        { name: "garlic", quantity: 4, unit: "cloves", prep_notes: "minced", required: true },
+                        { name: "ginger", quantity: 1, unit: "inch", prep_notes: "grated", required: true },
+                        { name: "tomato sauce", quantity: 1, unit: "can", prep_notes: "", required: true },
+                        { name: "heavy cream", quantity: 1, unit: "cup", prep_notes: "", required: false },
+                        { name: "garam masala", quantity: 2, unit: "tsp", prep_notes: "", required: true }
+                    ],
+                    instructions: [
+                        { name: "Marinate Chicken", text: "Marinate chicken pieces in yogurt and spices for 30 minutes.", equipment: "Large bowl", step_number: 1 },
+                        { name: "Cook Base", text: "Sauté onions, garlic, and ginger in butter until golden.", equipment: "Large pan", step_number: 2 },
+                        { name: "Add Sauce", text: "Add tomato sauce and spices, simmer for 15 minutes.", equipment: "Large pan", step_number: 3 },
+                        { name: "Add Chicken", text: "Add marinated chicken and cook until tender.", equipment: "Large pan", step_number: 4 },
+                        { name: "Finish", text: "Stir in cream and simmer for 5 more minutes.", equipment: "Large pan", step_number: 5 }
+                    ]
+                },
+                {
+                    recipeId: "V8A000000001502",
+                    title: "Rice Krispie Treats",
+                    description: "Classic sweet treats that everyone loves",
+                    prepTime: 10,
+                    cookTime: 5,
+                    totalTime: 15,
+                    servings: 12,
+                    difficultyLevel: "Kitchen Newbie",
+                    cuisineType: "🍰 Sweet Dreams - Dessert",
+                    successSecrets: "Work quickly once cereal is added to avoid sticking.",
+                    ingredients: [
+                        { name: "butter", quantity: 3, unit: "tbsp", prep_notes: "", required: true },
+                        { name: "marshmallows", quantity: 10, unit: "oz", prep_notes: "mini", required: true },
+                        { name: "rice cereal", quantity: 6, unit: "cups", prep_notes: "", required: true },
+                        { name: "vanilla extract", quantity: 1, unit: "tsp", prep_notes: "", required: false }
+                    ],
+                    instructions: [
+                        { name: "Melt Butter", text: "In a large saucepan, melt butter over low heat.", equipment: "Large saucepan, mixing spoon, baking dish", step_number: 1 },
+                        { name: "Add Marshmallows", text: "Add marshmallows and stir until completely melted.", equipment: "Large saucepan, mixing spoon, baking dish", step_number: 2 },
+                        { name: "Add Vanilla", text: "Remove from heat and stir in vanilla extract.", equipment: "Large saucepan, mixing spoon, baking dish", step_number: 3 },
+                        { name: "Add Cereal", text: "Quickly fold in Rice Krispies cereal until evenly coated.", equipment: "Large saucepan, mixing spoon, baking dish", step_number: 4 },
+                        { name: "Press & Cool", text: "Press mixture into a greased pan and let cool before cutting.", equipment: "Large saucepan, mixing spoon, baking dish", step_number: 5 }
+                    ]
+                },
+                {
+                    recipeId: "V8A000000003015",
+                    title: "Chicken Alfredo",
+                    description: "Creamy pasta dish with tender chicken",
+                    prepTime: 15,
+                    cookTime: 25,
+                    totalTime: 40,
+                    servings: 4,
+                    difficultyLevel: "Kitchen Explorer",
+                    cuisineType: "🍝 Pasta La Vista - Italian",
+                    successSecrets: "Use freshly grated parmesan for the best flavor.",
+                    ingredients: [
+                        { name: "chicken", quantity: 1, unit: "lb", prep_notes: "sliced", required: true },
+                        { name: "pasta", quantity: 12, unit: "oz", prep_notes: "fettuccine", required: true },
+                        { name: "butter", quantity: 4, unit: "tbsp", prep_notes: "", required: true },
+                        { name: "garlic", quantity: 3, unit: "cloves", prep_notes: "minced", required: true },
+                        { name: "heavy cream", quantity: 1, unit: "cup", prep_notes: "", required: true },
+                        { name: "parmesan", quantity: 1, unit: "cup", prep_notes: "grated", required: true }
+                    ],
+                    instructions: [
+                        { name: "Cook Pasta", text: "Cook pasta according to package directions until al dente.", equipment: "Large pot, strainer", step_number: 1 },
+                        { name: "Cook Chicken", text: "Season and cook chicken in a large skillet until golden.", equipment: "Large skillet", step_number: 2 },
+                        { name: "Make Sauce", text: "Add garlic, butter, and cream to the skillet with chicken.", equipment: "Large skillet", step_number: 3 },
+                        { name: "Add Cheese", text: "Stir in parmesan cheese until sauce is smooth and creamy.", equipment: "Large skillet", step_number: 4 },
+                        { name: "Combine", text: "Toss cooked pasta with the chicken alfredo sauce.", equipment: "Large skillet", step_number: 5 }
+                    ]
+                },
+                {
+                    recipeId: "V8A000000002510",
+                    title: "Pad Thai",
+                    description: "Authentic Thai stir-fried noodles with a perfect balance of flavors",
+                    prepTime: 20,
+                    cookTime: 15,
+                    totalTime: 35,
+                    servings: 4,
+                    difficultyLevel: "Kitchen Pro",
+                    cuisineType: "🍜 Ramen-tic - Asian",
+                    successSecrets: "Have all ingredients prepped before starting - this cooks fast!",
+                    ingredients: [
+                        { name: "rice noodles", quantity: 8, unit: "oz", prep_notes: "soaked", required: true },
+                        { name: "chicken", quantity: 1, unit: "lb", prep_notes: "sliced thin", required: false },
+                        { name: "eggs", quantity: 2, unit: "large", prep_notes: "", required: true },
+                        { name: "bean sprouts", quantity: 2, unit: "cups", prep_notes: "fresh", required: true },
+                        { name: "peanuts", quantity: 0.5, unit: "cup", prep_notes: "crushed", required: false },
+                        { name: "fish sauce", quantity: 3, unit: "tbsp", prep_notes: "", required: true },
+                        { name: "tamarind paste", quantity: 2, unit: "tbsp", prep_notes: "", required: true },
+                        { name: "lime", quantity: 2, unit: "wedges", prep_notes: "", required: false }
+                    ],
+                    instructions: [
+                        { name: "Prep Noodles", text: "Soak rice noodles in warm water until soft, then drain.", equipment: "Large bowl, wok or large pan", step_number: 1 },
+                        { name: "Cook Protein", text: "Heat oil in wok and stir-fry chicken until cooked through.", equipment: "Large bowl, wok or large pan", step_number: 2 },
+                        { name: "Add Eggs", text: "Push chicken to one side, scramble eggs on the other side.", equipment: "Large bowl, wok or large pan", step_number: 3 },
+                        { name: "Add Noodles", text: "Add soaked noodles and sauce mixture, toss everything together.", equipment: "Large bowl, wok or large pan", step_number: 4 },
+                        { name: "Finish", text: "Add bean sprouts and peanuts, serve with lime wedges.", equipment: "Large bowl, wok or large pan", step_number: 5 }
+                    ]
+                }
+            ];
+            
+            window.veevaRecipes = sampleVeevaData;
+            return sampleVeevaData;
+        }
+
+        // Global functions
+        window.addIngredient = function() {
+            const ingredientInput = document.getElementById('ingredientInput');
+            const value = ingredientInput.value.trim();
+            if (value && !window.availableIngredients.includes(value)) {
+                window.availableIngredients.push(value);
+                ingredientInput.value = '';
+                window.updateIngredientsDisplay();
+                window.updateResults();
+            }
+        };
+
+        window.addSuggestedIngredient = function(ingredient) {
+            if (!window.availableIngredients.includes(ingredient)) {
+                window.availableIngredients.push(ingredient);
+                window.updateIngredientsDisplay();
+                window.updateResults();
+            }
+        };
+
+        window.removeIngredient = function(ingredient) {
+            window.availableIngredients = window.availableIngredients.filter(ing => ing !== ingredient);
+            window.updateIngredientsDisplay();
+            window.updateResults();
+        };
+
+        window.showRecipeDetail = function(recipeId) {
+            window.selectedRecipe = window.searchResults.find(recipe => recipe.recipeId === recipeId);
+            if (!window.selectedRecipe) return;
+
+            document.getElementById('detailTitle').textContent = window.selectedRecipe.title;
+            document.getElementById('detailDescription').textContent = window.selectedRecipe.description;
+            
+            const matchClass = window.selectedRecipe.matchPercentage >= 80 ? 'match-high' :
+                             window.selectedRecipe.matchPercentage >= 60 ? 'match-medium' : 'match-low';
+            const matchBadge = document.getElementById('detailMatchBadge');
+            matchBadge.textContent = `${window.selectedRecipe.matchPercentage}% match`;
+            matchBadge.className = `match-badge ${matchClass}`;
+
+            document.getElementById('detailMeta').innerHTML = `
+                <span>⏱️ Prep: ${window.selectedRecipe.prepTime}m | Cook: ${window.selectedRecipe.cookTime}m | Total: ${window.selectedRecipe.totalTime}m</span>
+                <span>👥 Serves ${window.selectedRecipe.servings}</span>
+                <span>👨‍🍳 ${window.selectedRecipe.difficultyLevel}</span>
+                <span>🌍 ${window.selectedRecipe.cuisineType}</span>
+                ${window.selectedRecipe.successSecrets ? `<br><span style="color: #f97316;">💡 ${window.selectedRecipe.successSecrets}</span>` : ''}
+            `;
+
+            document.getElementById('detailIngredients').innerHTML = window.selectedRecipe.ingredients.map(ingredient => {
+                const isMatched = window.selectedRecipe.matchedIngredients.includes(ingredient);
+                const isMissingRequired = window.selectedRecipe.missingRequired.includes(ingredient);
+                
+                const statusClass = isMatched ? 'ingredient-have' :
+                                  isMissingRequired ? 'ingredient-required' : 'ingredient-optional';
+                const statusText = isMatched ? '✓ Have' :
+                                 isMissingRequired ? 'Required' : 'Optional';
+
+                return `
+                    <div class="ingredient-item ${statusClass}">
+                        <span>
+                            ${ingredient.quantity} ${ingredient.unit} ${ingredient.name}
+                            ${ingredient.required ? '<span style="color: #dc2626; margin-left: 4px;">*</span>' : ''}
+                            ${ingredient.prep_notes ? `<br><small style="color: #6b7280;">${ingredient.prep_notes}</small>` : ''}
+                        </span>
+                        <span style="font-size: 0.75rem;">${statusText}</span>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('detailInstructions').innerHTML = window.selectedRecipe.instructions.map((instruction, index) => `
+                <li class="instruction-item">
+                    <span class="instruction-number">${instruction.step_number || index + 1}</span>
+                    <div>
+                        <strong>${instruction.name}:</strong> ${instruction.text}
+                        ${instruction.equipment ? `<br><em>Equipment: ${instruction.equipment}</em>` : ''}
+                        ${instruction.prep_notes ? `<br><small>💡 ${instruction.prep_notes}</small>` : ''}
+                    </div>
+                </li>
+            `).join('');
+
+            document.getElementById('searchView').classList.add('hidden');
+            document.getElementById('recipeDetailView').classList.remove('hidden');
+        };
+
+        window.showSearchView = function() {
+            document.getElementById('searchView').classList.remove('hidden');
+            document.getElementById('recipeDetailView').classList.add('hidden');
+            window.selectedRecipe = null;
+        };
+
+        window.updateResults = function() {
+            window.searchResults = calculateRecipeMatches();
+            
+            const resultsSection = document.getElementById('resultsSection');
+            const noResults = document.getElementById('noResults');
+            
+            if (window.availableIngredients.length === 0) {
+                resultsSection.classList.add('hidden');
+                noResults.classList.add('hidden');
+                return;
+            }
+
+            if (window.searchResults.length === 0) {
+                resultsSection.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+            
+            document.getElementById('resultsTitle').textContent = 
+                `Found ${window.searchResults.length} recipe${window.searchResults.length !== 1 ? 's' : ''}`;
+
+            const recipeGrid = document.getElementById('recipeGrid');
+            recipeGrid.innerHTML = window.searchResults.map(recipe => {
+                const matchClass = recipe.matchPercentage >= 80 ? 'match-high' :
+                                 recipe.matchPercentage >= 60 ? 'match-medium' : 'match-low';
+
+                return `
+                    <div class="recipe-card ${recipe.canMake ? 'can-make' : ''}" onclick="window.showRecipeDetail('${recipe.recipeId}')">
+                        <div class="recipe-header">
+                            <h3 class="recipe-title">${recipe.title}</h3>
+                            <div class="match-badge ${matchClass}">${recipe.matchPercentage}% match</div>
+                        </div>
+                        
+                        <p class="recipe-description">${recipe.description}</p>
+                        
+                        <div class="recipe-meta">
+                            <span>⏱️ ${recipe.totalTime}m</span>
+                            <span>👥 ${recipe.servings}</span>
+                            <span>👨‍🍳 ${recipe.difficultyLevel}</span>
+                            <span>🌍 ${recipe.cuisineType}</span>
+                        </div>
+
+                        <div class="recipe-status ${recipe.canMake ? 'status-can-make' : 'status-missing'}">
+                            ${recipe.canMake ? '✓ You can make this recipe!' : 
+                              `Missing: ${recipe.totalMissing} ingredients`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.updateIngredientsDisplay = function() {
+            const ingredientsList = document.getElementById('ingredientsList');
+            const ingredientTags = document.getElementById('ingredientTags');
+            const starterSuggestions = document.getElementById('starterSuggestions');
+            
+            if (window.availableIngredients.length > 0) {
+                ingredientsList.classList.remove('hidden');
+                starterSuggestions.classList.add('hidden');
+                
+                ingredientTags.innerHTML = window.availableIngredients.map(ingredient => `
+                    <span class="ingredient-tag">
+                        ${ingredient}
+                        <span class="remove-ingredient" onclick="window.removeIngredient('${ingredient}')">×</span>
+                    </span>
+                `).join('');
+            } else {
+                ingredientsList.classList.add('hidden');
+                starterSuggestions.classList.remove('hidden');
+            }
+        };
+
+        function calculateRecipeMatches() {
+            if (window.availableIngredients.length === 0) {
+                return [];
+            }
+
+            window.maxMissing = parseInt(document.getElementById('maxMissing').value);
+
+            const results = window.veevaRecipes.map(recipe => {
+                const totalIngredients = recipe.ingredients.length;
+                const requiredIngredients = recipe.ingredients.filter(ing => ing.required);
+                
+                // More flexible ingredient matching
+                const matchedIngredients = recipe.ingredients.filter(recipeIng => 
+                    window.availableIngredients.some(userIng => {
+                        const userIngLower = userIng.toLowerCase().trim();
+                        const recipeIngLower = recipeIng.name.toLowerCase().trim();
+                        
+                        // Exact match
+                        if (userIngLower === recipeIngLower) return true;
+                        
+                        // Partial matches (either direction)
+                        if (userIngLower.includes(recipeIngLower) || recipeIngLower.includes(userIngLower)) return true;
+                        
+                        // Common ingredient variations
+                        const ingredientMap = {
+                            'chicken': ['chicken breast', 'chicken thigh', 'chicken'],
+                            'pasta': ['fettuccine', 'spaghetti', 'noodles', 'pasta'],
+                            'rice': ['rice', 'rice cereal', 'arborio rice', 'jasmine rice'],
+                            'tomato': ['tomato', 'tomato sauce', 'marinara', 'tomatoes'],
+                            'cheese': ['parmesan', 'mozzarella', 'cheddar', 'cheese'],
+                            'oil': ['olive oil', 'vegetable oil', 'cooking oil', 'oil'],
+                            'butter': ['butter', 'margarine'],
+                            'onion': ['onion', 'onions', 'yellow onion', 'white onion'],
+                            'garlic': ['garlic', 'garlic cloves', 'minced garlic'],
+                            'cream': ['heavy cream', 'whipping cream', 'cream']
+                        };
+                        
+                        // Check if user ingredient matches any variation
+                        for (const [key, variations] of Object.entries(ingredientMap)) {
+                            if (variations.includes(userIngLower) && variations.includes(recipeIngLower)) {
+                                return true;
+                            }
+                        }
+                        
+                        return false;
+                    })
+                );
+
+                const missingRequired = requiredIngredients.filter(ing => 
+                    !matchedIngredients.includes(ing)
+                );
+
+                const missingOptional = recipe.ingredients.filter(ing => 
+                    !ing.required && !matchedIngredients.includes(ing)
+                );
+
+                const matchPercentage = Math.round((matchedIngredients.length / totalIngredients) * 100);
+                const totalMissing = missingRequired.length + missingOptional.length;
+
+                return {
+                    ...recipe,
+                    matchPercentage,
+                    matchedIngredients,
+                    missingRequired,
+                    missingOptional,
+                    totalMissing,
+                    canMake: missingRequired.length === 0 && totalMissing <= window.maxMissing
+                };
+            });
+
+            // More lenient filtering - show recipes with any matches
+            return results
+                .filter(recipe => recipe.matchPercentage > 0 || window.availableIngredients.length === 0)
+                .sort((a, b) => {
+                    if (a.canMake && !b.canMake) return -1;
+                    if (!a.canMake && b.canMake) return 1;
+                    return b.matchPercentage - a.matchPercentage;
+                });
+        }
+
+        // Initialize the app
+        async function initializeApp() {
+            await loadVeevaData();
+            window.updateIngredientsDisplay();
+            
+            // Set up event listeners
+            const ingredientInput = document.getElementById('ingredientInput');
+            ingredientInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    window.addIngredient();
+                }
+            });
+        }
+        
+        // Start the app when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
