@@ -621,27 +621,110 @@
             }
         }
 
-        /* Veeva iframe-specific styles */
+        /* Veeva iframe-specific styles - compact mobile layout */
+        .veeva-iframe {
+            min-height: auto !important;
+            overflow: visible !important;
+        }
+        
+        .veeva-iframe .header {
+            padding: 0.75rem 0.5rem !important;
+        }
+        
+        .veeva-iframe .header h1 {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+        
+        .veeva-iframe .header p {
+            font-size: 0.875rem !important;
+        }
+        
         .veeva-iframe .container {
             max-width: 100% !important;
             padding: 0.5rem !important;
         }
         
-        .veeva-iframe .header {
-            padding: 1rem 0.5rem !important;
-        }
-        
         .veeva-iframe .search-section {
             margin: 0.5rem 0 !important;
-            padding: 1rem 0.75rem !important;
+            padding: 1rem !important;
+        }
+        
+        .veeva-iframe .search-title {
+            font-size: 1.125rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        .veeva-iframe .input-group {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        
+        .veeva-iframe .ingredient-input {
+            padding: 0.75rem !important;
+            font-size: 0.9rem !important;
+        }
+        
+        .veeva-iframe .add-btn {
+            padding: 0.75rem !important;
+            font-size: 0.9rem !important;
         }
         
         .veeva-iframe .recipe-grid {
+            grid-template-columns: 1fr !important;
             gap: 0.75rem !important;
         }
         
         .veeva-iframe .recipe-card {
             padding: 1rem !important;
+            min-height: auto !important;
+        }
+        
+        .veeva-iframe .recipe-title {
+            font-size: 1rem !important;
+        }
+        
+        .veeva-iframe .recipe-meta {
+            font-size: 0.8rem !important;
+            gap: 0.5rem !important;
+        }
+        
+        .veeva-iframe .starter-suggestions {
+            padding: 1.5rem 0.5rem !important;
+        }
+        
+        .veeva-iframe .suggestion-buttons {
+            gap: 0.4rem !important;
+        }
+        
+        .veeva-iframe .suggestion-btn {
+            padding: 0.6rem 0.8rem !important;
+            font-size: 0.8rem !important;
+        }
+        
+        /* Compact recipe detail view for iframe */
+        .veeva-iframe .recipe-detail-header {
+            padding: 1rem !important;
+        }
+        
+        .veeva-iframe .recipe-detail-title {
+            font-size: 1.25rem !important;
+        }
+        
+        .veeva-iframe .recipe-detail-content {
+            grid-template-columns: 1fr !important;
+            padding: 1rem !important;
+            gap: 1rem !important;
+        }
+        
+        .veeva-iframe .ingredient-item {
+            padding: 0.5rem !important;
+            font-size: 0.85rem !important;
+        }
+        
+        .veeva-iframe .instruction-item {
+            margin-bottom: 0.75rem !important;
+            font-size: 0.9rem !important;
         }
 
         .hidden {
@@ -1140,16 +1223,50 @@
             await loadVeevaData();
             window.updateIngredientsDisplay();
             
-            // Force responsive behavior in Veeva iframe
+            // Veeva iframe handling
             if (window.self !== window.top) {
-                // We're in an iframe (likely Veeva)
-                document.body.style.width = '100%';
-                document.body.style.minWidth = '320px';
-                document.body.style.maxWidth = '100vw';
-                document.body.style.overflowX = 'hidden';
-                
-                // Add responsive class for iframe-specific styling
+                // We're in an iframe (Veeva)
                 document.body.classList.add('veeva-iframe');
+                
+                // Attempt to communicate with parent to resize iframe
+                function resizeIframe() {
+                    const height = Math.max(
+                        document.body.scrollHeight,
+                        document.body.offsetHeight,
+                        document.documentElement.clientHeight,
+                        document.documentElement.scrollHeight,
+                        document.documentElement.offsetHeight
+                    );
+                    
+                    try {
+                        // Try to message parent frame to resize
+                        window.parent.postMessage({
+                            type: 'resize',
+                            height: height + 50 // Add some padding
+                        }, '*');
+                    } catch (e) {
+                        console.log('Cannot resize iframe from inside');
+                    }
+                }
+                
+                // Resize on load and content changes
+                resizeIframe();
+                
+                // Observe content changes and resize accordingly
+                const observer = new MutationObserver(resizeIframe);
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true
+                });
+                
+                // Also resize on window resize
+                window.addEventListener('resize', resizeIframe);
+                
+                // Force initial styles for iframe
+                document.body.style.width = '100%';
+                document.body.style.minHeight = 'auto';
+                document.body.style.overflow = 'visible';
             }
             
             // Set up event listeners
