@@ -2,9 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Veeva - Recipe Discovery Platform</title>
     <style>
+        /* Force responsive behavior even in iframes/embedded views */
+        html {
+            width: 100% !important;
+            height: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        body {
+            width: 100% !important;
+            min-width: 320px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -15,6 +30,11 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #fff7ed, #fed7aa);
             min-height: 100vh;
+            width: 100% !important;
+            min-width: 320px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
         }
 
         .header {
@@ -53,11 +73,35 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 1rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
             .container {
                 padding: 2rem 1rem;
+            }
+        }
+
+        /* Veeva-specific responsive overrides */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 0.75rem !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            
+            .header {
+                padding: 1rem !important;
+            }
+            
+            .search-section {
+                margin: 0.75rem 0 !important;
+                padding: 1rem !important;
+            }
+            
+            .recipe-card {
+                margin-bottom: 0.75rem !important;
             }
         }
 
@@ -502,8 +546,12 @@
             background: #fdba74;
         }
 
-        /* Mobile-specific improvements */
+        /* Mobile-specific improvements + Veeva iframe compatibility */
         @media (max-width: 640px) {
+            * {
+                box-sizing: border-box !important;
+            }
+            
             .search-title {
                 font-size: 1.25rem;
                 text-align: center;
@@ -539,6 +587,21 @@
                 font-size: 1.5rem;
                 text-align: center;
             }
+            
+            /* Force mobile layout in Veeva */
+            .recipe-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+            }
+            
+            .recipe-detail-content {
+                grid-template-columns: 1fr !important;
+                padding: 1rem !important;
+            }
+            
+            .input-group {
+                flex-direction: column !important;
+            }
         }
 
         /* Touch improvements */
@@ -556,6 +619,29 @@
             .suggestion-btn:active {
                 transform: translateY(1px);
             }
+        }
+
+        /* Veeva iframe-specific styles */
+        .veeva-iframe .container {
+            max-width: 100% !important;
+            padding: 0.5rem !important;
+        }
+        
+        .veeva-iframe .header {
+            padding: 1rem 0.5rem !important;
+        }
+        
+        .veeva-iframe .search-section {
+            margin: 0.5rem 0 !important;
+            padding: 1rem 0.75rem !important;
+        }
+        
+        .veeva-iframe .recipe-grid {
+            gap: 0.75rem !important;
+        }
+        
+        .veeva-iframe .recipe-card {
+            padding: 1rem !important;
         }
 
         .hidden {
@@ -1053,6 +1139,18 @@
         async function initializeApp() {
             await loadVeevaData();
             window.updateIngredientsDisplay();
+            
+            // Force responsive behavior in Veeva iframe
+            if (window.self !== window.top) {
+                // We're in an iframe (likely Veeva)
+                document.body.style.width = '100%';
+                document.body.style.minWidth = '320px';
+                document.body.style.maxWidth = '100vw';
+                document.body.style.overflowX = 'hidden';
+                
+                // Add responsive class for iframe-specific styling
+                document.body.classList.add('veeva-iframe');
+            }
             
             // Set up event listeners
             const ingredientInput = document.getElementById('ingredientInput');
