@@ -621,12 +621,13 @@
             }
         }
 
-        /* Veeva iframe-specific styles - compact design for all sizes */
+        /* Veeva iframe-specific styles - responsive but constrained widths */
         .veeva-iframe {
             min-height: auto !important;
             overflow: visible !important;
         }
         
+        /* Base compact styles for Veeva */
         .veeva-iframe .header {
             padding: 1rem !important;
         }
@@ -641,13 +642,17 @@
         }
         
         .veeva-iframe .container {
-            max-width: 100% !important;
+            max-width: 900px !important; /* Constrain max width */
+            margin: 0 auto !important;
             padding: 0.75rem !important;
         }
         
         .veeva-iframe .search-section {
             margin: 0.75rem 0 !important;
             padding: 1.25rem !important;
+            max-width: 600px !important; /* Keep search form reasonable */
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
         
         .veeva-iframe .search-title {
@@ -655,15 +660,34 @@
             margin-bottom: 0.75rem !important;
         }
         
+        /* Responsive input layout within constraints */
+        .veeva-iframe .input-group {
+            display: flex !important;
+            gap: 0.75rem !important;
+        }
+        
+        /* Mobile-like behavior in narrow Veeva views */
+        @container (max-width: 500px) {
+            .veeva-iframe .input-group {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .veeva-iframe .add-btn {
+                width: 100% !important;
+            }
+        }
+        
+        /* Default: side-by-side for medium+ widths */
         .veeva-iframe .input-group {
             flex-direction: row !important;
-            gap: 0.75rem !important;
         }
         
         .veeva-iframe .ingredient-input {
             padding: 0.6rem 0.75rem !important;
             font-size: 0.9rem !important;
             min-height: 36px !important;
+            flex: 1 !important;
         }
         
         .veeva-iframe .add-btn {
@@ -671,21 +695,34 @@
             font-size: 0.85rem !important;
             min-height: 36px !important;
             white-space: nowrap !important;
+            flex-shrink: 0 !important;
         }
         
-        .veeva-iframe .filter-select {
-            padding: 0.5rem !important;
-            font-size: 0.85rem !important;
-        }
-        
-        .veeva-iframe .ingredient-tag {
-            padding: 0.4rem 0.6rem !important;
-            font-size: 0.8rem !important;
-        }
-        
+        /* Responsive recipe grid with max width */
         .veeva-iframe .recipe-grid {
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+            max-width: 900px !important;
+            margin: 0 auto !important;
             gap: 1rem !important;
+        }
+        
+        /* Responsive grid columns based on available space */
+        .veeva-iframe .recipe-grid {
+            display: grid !important;
+            grid-template-columns: 1fr !important; /* Default: single column */
+        }
+        
+        /* 2 columns for medium screens */
+        @media (min-width: 600px) {
+            .veeva-iframe .recipe-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        /* 3 columns for wider screens (but still constrained by max-width) */
+        @media (min-width: 900px) {
+            .veeva-iframe .recipe-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
         }
         
         .veeva-iframe .recipe-card {
@@ -707,6 +744,7 @@
             font-size: 0.75rem !important;
             gap: 0.75rem !important;
             margin-bottom: 0.75rem !important;
+            flex-wrap: wrap !important;
         }
         
         .veeva-iframe .recipe-status {
@@ -719,8 +757,20 @@
             font-size: 0.7rem !important;
         }
         
+        .veeva-iframe .filter-select {
+            padding: 0.5rem !important;
+            font-size: 0.85rem !important;
+        }
+        
+        .veeva-iframe .ingredient-tag {
+            padding: 0.4rem 0.6rem !important;
+            font-size: 0.8rem !important;
+        }
+        
         .veeva-iframe .starter-suggestions {
             padding: 1.5rem 0.75rem !important;
+            max-width: 600px !important;
+            margin: 0 auto !important;
         }
         
         .veeva-iframe .starter-suggestions h3 {
@@ -742,9 +792,15 @@
         .veeva-iframe .results-section h2 {
             font-size: 1.2rem !important;
             margin-bottom: 1rem !important;
+            text-align: center !important;
         }
         
-        /* Compact recipe detail view */
+        /* Recipe detail view - responsive but constrained */
+        .veeva-iframe .recipe-detail {
+            max-width: 900px !important;
+            margin: 0 auto !important;
+        }
+        
         .veeva-iframe .recipe-detail-header {
             padding: 1.25rem !important;
         }
@@ -755,9 +811,17 @@
         }
         
         .veeva-iframe .recipe-detail-content {
-            grid-template-columns: 1fr 1fr !important;
             padding: 1.25rem !important;
             gap: 1.5rem !important;
+            display: grid !important;
+            grid-template-columns: 1fr !important; /* Default: stacked */
+        }
+        
+        /* Side-by-side for wider screens */
+        @media (min-width: 700px) {
+            .veeva-iframe .recipe-detail-content {
+                grid-template-columns: 1fr 1fr !important;
+            }
         }
         
         .veeva-iframe .ingredients-section h3,
